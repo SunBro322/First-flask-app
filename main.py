@@ -28,3 +28,6 @@ def get_dict():
     }
     return jsonify(data)
 
+@app.route('/courses/<id>')
+def courses_show(id):
+    return f"Course id: {id}"
