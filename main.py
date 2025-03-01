@@ -15,6 +15,7 @@ def users_get():
 def users_post():
     return 'POST /users'
 
+
 @app.get('/dict')
 def get_dict():
     """ Обработка словарей и вывод пользователю"""
@@ -26,3 +27,4 @@ def get_dict():
         'courses': ['Math', 'Science', 'History']
     }
     return jsonify(data)
+
