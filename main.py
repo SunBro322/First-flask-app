@@ -31,3 +31,7 @@ def get_dict():
 @app.route('/courses/<id>')
 def courses_show(id):
     return f"Course id: {id}"
+
+@app.errorhandler(404)
+def not_found(error):
+    return 'Page not found', 404
