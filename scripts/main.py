@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 
 # Это callable WSGI-приложение
 app = Flask(__name__)
@@ -7,13 +7,13 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello!'
 
-@app.get('/users')
-def users_get():
-    return 'GET /users'
-
-@app.post('/users')
-def users_post():
-    return 'POST /users'
+# @app.get('/users')
+# def users_get():
+#     return 'GET /users'
+#
+# @app.post('/users')
+# def users_post():
+#     return 'POST /users'
 
 
 @app.get('/dict')
@@ -35,3 +35,11 @@ def courses_show(id):
 @app.errorhandler(404)
 def not_found(error):
     return 'Page not found', 404
+
+@app.route('/users/<id>')
+def show_user(id):
+    """ Отображение пользователя с выводом HTML"""
+    return render_template(
+        'show.html',
+        id=id,
+    )
