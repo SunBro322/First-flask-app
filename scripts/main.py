@@ -12,14 +12,6 @@ app = Flask(__name__)
 def hello_world():
     return redirect(url_for('get_users'))
 
-# @app.get('/users')
-# def users_get():
-#     return 'GET /users'
-#
-# @app.post('/users')
-# def users_post():
-#     return 'POST /users'
-
 
 @app.get('/dict')
 def get_dict():
@@ -45,21 +37,14 @@ def not_found(error):
 def arise_errors(error):
     return 'Script has errors', 500
 
-# @app.route('/users/<id>')
-# def show_user(id):
-#     """ Отображение пользователя с выводом HTML"""
-#     return render_template(
-#         'show.html',
-#         id=id,
-#     )
+@app.route('/users_id/<id>')
+def show_user(id):
+    """ Отображение пользователя с выводом HTML"""
+    return render_template(
+        'show.html',
+        id=id,
+    )
 
-# users = [
-#     {'id': 1, 'name': 'mike'},
-#     {'id': 2, 'name': 'mishel'},
-#     {'id': 3, 'name': 'adel'},
-#     {'id': 4, 'name': 'keks'},
-#     {'id': 5, 'name': 'kamila'}
-# ]
 
 @app.route('/find_user')
 def find_user():
