@@ -6,7 +6,7 @@
 </head>
 <body>
     <h1>User Search</h1>
-    <form method="GET" action="{{ url_for('show_users') }}">
+    <form method="GET" action="{{ url_for('find_user') }}">
         <input type="search" name="search" placeholder="Search users...">
     </form>
 
@@ -15,5 +15,7 @@
             <li>{{ user['name'] }}</li>
         {% endfor %}
     </ul>
+
+    <a href="{{ url_for('get_users') }}">All users</a>
 </body>
 </html>
