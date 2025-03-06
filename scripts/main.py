@@ -1,15 +1,37 @@
 import json
 import os.path
-from contextlib import redirect_stderr
 from typing import List
+import logging
+from logging.handlers import RotatingFileHandler
 
 from flask import Flask, jsonify, render_template, request, redirect, url_for
 
 # Это callable WSGI-приложение
 app = Flask(__name__)
 
+
+if not app.debug:
+    # Создание обработчика
+    log_dir = os.path.abspath('logs')
+    log_file = os.path.join(log_dir, 'log')
+    print(f'{log_dir}, {log_file}')
+    file_handler = RotatingFileHandler(
+        filename=log_file,
+        maxBytes=1024 * 1024,
+        backupCount=3,
+        encoding='utf-8'
+    )
+
+    # Формат сообщений
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    ))
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
+
 @app.route('/')
 def hello_world():
+    app.logger.info('Главная страница запрошена')
     return redirect(url_for('get_users'))
 
 
@@ -31,10 +53,12 @@ def courses_show(id):
 
 @app.errorhandler(404)
 def not_found(error):
+    app.logger.error(f'404 ошибка: {error}')
     return 'Page not found', 404
 
 @app.errorhandler(500)
 def arise_errors(error):
+    app.logger.error(f'500 ошибка - Ошибка в main: {error}')
     return 'Script has errors', 500
 
 @app.route('/users_id/<id>')
@@ -49,6 +73,7 @@ def show_user(id):
 @app.route('/find_user')
 def find_user():
     """ Поиск пользователей """
+    app.logger.info('Производится поиск пользователей')
     search_term = request.args.get('search', '').lower()
     users = load_users()
     filtered_users = [user for user in users if search_term in user['name'].lower()]
@@ -56,6 +81,7 @@ def find_user():
 
 def load_users() -> List:
     """ Считывание данных из Json """
+    app.logger.info('Считывание данных с Json')
     if not os.path.exists(r"..\First-flask-app\data base\user.json"):
         return []
 
@@ -68,12 +94,14 @@ def load_users() -> List:
 
 def save_user(users):
     """ Сохранение данных по пользователям """
+    app.logger.info('Сохранение данных по пользователям')
     with open(r'..\First-flask-app\data base\user.json', 'w') as f:
         json.dump(users, f, indent=4)
 
 @app.route('/create-users', methods=['POST', 'GET'])
 def create_user():
     """ Создание нового пользователя """
+    app.logger.info('Создание нового пользователя')
     if request.method:
         name = request.form.get('name')
         email = request.form.get('email')
@@ -91,5 +119,6 @@ def create_user():
 @app.route('/users')
 def get_users():
     """ Вывод пользователей """
+    app.logger.info('Вывод пользователей')
     users = load_users()
     return render_template('users/users.html', users=users)
