@@ -6,3 +6,6 @@ flask:
 
 flask-debug:
 	uv run flask --app scripts/main --debug run --port 8000
+
+lint:
+	uv run flake8 .\scripts\main.py
