@@ -6,6 +6,13 @@
 </head>
 <body>
   <h1>Users List</h1>
+  {% if messages %}
+  <ul class="flashes">
+    {% for category, message in messages %}
+      <li class="{{ category }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
   <ul>
     {% for user in users %}
     <li>ID: {{ user.id }}, Name: {{ user.name }}, Email: {{ user.email }}</li>
@@ -15,6 +22,5 @@
   </ul>
   <a href="{{ url_for('create_user') }}">Add new user</a><br>
   <a href="{{ url_for('find_user') }}">Find user</a>
-
 </body>
 </html>
