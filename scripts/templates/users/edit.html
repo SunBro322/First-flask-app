@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit users</title>
+</head>
+<body>
+    <form action="{{ url_for('user_patch', email=user.email|urlencode) }}" method="post">
+    <div>
+        <label>
+            Изменение Email
+            <input type="email"
+                   name="email"
+                   value="{{ request.form.email if request.form else user.email }}"
+                   required>
+        </label>
+        {% if errors.email %}
+            <div class="error">{{ errors.email }}</div>
+        {% endif %}
+    </div>
+    <button type="submit">Обновить</button>
+</form>
+</body>
+</html>

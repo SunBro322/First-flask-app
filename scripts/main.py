@@ -3,8 +3,9 @@ import os.path
 from typing import List
 import logging
 from logging.handlers import RotatingFileHandler
+from urllib.parse import unquote
 
-from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, get_flashed_messages
+from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, get_flashed_messages, abort
 
 # Это callable WSGI-приложение
 app = Flask(__name__)
@@ -34,23 +35,6 @@ def hello_world():
     app.logger.info('Главная страница запрошена')
     return redirect(url_for('get_users'))
 
-
-@app.get('/dict')
-def get_dict():
-    """ Обработка словарей и вывод пользователю"""
-
-    data = {
-        'name': 'John Doe',
-        'age': 30,
-        'is_student': False,
-        'courses': ['Math', 'Science', 'History']
-    }
-    return jsonify(data)
-
-@app.route('/courses/<id>')
-def courses_show(id):
-    return f"Course id: {id}"
-
 @app.errorhandler(404)
 def not_found(error):
     app.logger.error(f'404 ошибка: {error}')
@@ -61,14 +45,14 @@ def arise_errors(error):
     app.logger.error(f'500 ошибка - Ошибка в main: {error}')
     return 'Script has errors', 500
 
-@app.route('/users_id/<id>')
-def show_user(id):
-    """ Отображение пользователя с выводом HTML"""
-    return render_template(
-        'show.html',
-        id=id,
-    )
+def validate(data):
+    """ Проверяем входящие данные с формы """
+    errors = {}
 
+    if not data.get('email'):
+        errors['email'] = "Can't be blank"
+
+    return errors
 
 @app.route('/find_user')
 def find_user():
@@ -120,6 +104,55 @@ def create_user():
 
     messages = get_flashed_messages(with_categories=True)
     return render_template('users/create_user.html', messages=messages)
+
+@app.route('/users/<path:email>/edit')
+def users_edit(email):
+    users = load_users()
+    decoded_email = unquote(email)
+
+    info_user = next((user for user in users if user['email'] == decoded_email), None)
+    errors = []
+
+    if not info_user:
+        app.logger.error(f"Пользователь с email {decoded_email} не найден")
+        abort(404)
+
+    return render_template(
+        'users/edit.html',
+        errors=errors,
+        user=info_user,
+    )
+
+@app.route('/users/<path:email>/patch', methods=['POST'])
+def user_patch(email):
+    users = load_users()
+    decoded_email = unquote(email)
+
+    user_index = next((i for i, user in enumerate(users) if user['email'] == decoded_email), None)
+
+    if user_index is None:
+        app.logger.error(f"Пользователь {decoded_email} не найден для обновления")
+        abort(404)
+
+    data = request.form.to_dict()
+    app.logger.info("Отправляем в валидатор")
+    errors = validate(data)
+
+    if errors:
+        return render_template(
+            'users/edit.html',
+            user={'email': decoded_email},
+            errors=errors,
+        ), 422
+
+
+    users[user_index]['email'] = data['email'].strip()
+    save_user(users)
+
+    flash('Email has been updated', 'success')
+    return redirect(url_for('get_users'))
+
+
 
 @app.route('/users')
 def get_users():

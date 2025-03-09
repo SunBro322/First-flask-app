@@ -16,6 +16,7 @@
   <ul>
     {% for user in users %}
     <li>ID: {{ user.id }}, Name: {{ user.name }}, Email: {{ user.email }}</li>
+    <a href="{{ url_for('users_edit', email=user.email|urlencode) }}">Edit user</a>
     {% else %}
     <li>Not user found</li>
     {% endfor %}
