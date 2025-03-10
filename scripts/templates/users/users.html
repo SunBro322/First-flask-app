@@ -15,8 +15,15 @@
   {% endif %}
   <ul>
     {% for user in users %}
-    <li>ID: {{ user.id }}, Name: {{ user.name }}, Email: {{ user.email }}</li>
+    <li>ID: {{ user.id }}, Name: {{ user.name }}, Email: {{ user.email }}
     <a href="{{ url_for('users_edit', email=user.email|urlencode) }}">Edit user</a>
+      <form id="deleteForm-{{ user.id }}" action="{{ url_for('user_delete', id=user.id) }}" method="post" style="display: inline;">
+        <a href="#"
+           onclick="if(confirm('Are you sure you want to delete user? This action cannot be undone.')) { document.getElementById('deleteForm-{{ user.id }}').submit(); } return false;">
+            Delete
+        </a>
+      </form>
+    </li>
     {% else %}
     <li>Not user found</li>
     {% endfor %}

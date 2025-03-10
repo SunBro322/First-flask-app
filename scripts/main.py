@@ -125,6 +125,7 @@ def users_edit(email):
 
 @app.route('/users/<path:email>/patch', methods=['POST'])
 def user_patch(email):
+    """ Редактирование Email """
     users = load_users()
     decoded_email = unquote(email)
 
@@ -150,6 +151,22 @@ def user_patch(email):
     save_user(users)
 
     flash('Email has been updated', 'success')
+    return redirect(url_for('get_users'))
+
+
+@app.route('/user/<id>/delete', methods=['POST'])
+def user_delete(id):
+    users = load_users()
+    user_index = next((i for i, user in enumerate(users) if str(user['id']) == str(id)), None)
+
+    if user_index is None:
+        app.logger.error(f"Пользователь {id} не найден для удаления")
+        abort(404)
+
+    users.pop(user_index)
+    save_user(users)
+
+    flash('User has been deleted', 'success')
     return redirect(url_for('get_users'))
 
 
